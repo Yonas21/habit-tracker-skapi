@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { skapi } from '../skapi.js'
+import { STATUS } from '../constants/status.js'
 import './ActivityForm.css'
 
 const ACTIVITY_TYPES = {
@@ -42,6 +43,7 @@ function ActivityForm({ onActivityAdded, user }) {
   const [time, setTime] = useState(new Date().toTimeString().slice(0, 5))
   const [company, setCompany] = useState('')
   const [position, setPosition] = useState('')
+  const [status, setStatus] = useState(STATUS.ACTIVE)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -77,7 +79,8 @@ function ActivityForm({ onActivityAdded, user }) {
         description: description || 'No description provided',
         date,
         time,
-        timestamp: new Date(`${date}T${time}`).getTime()
+        timestamp: new Date(`${date}T${time}`).getTime(),
+        status: status || STATUS.ACTIVE
       }
 
       if (isJobRelated) {
@@ -195,6 +198,21 @@ function ActivityForm({ onActivityAdded, user }) {
               onChange={(e) => setTime(e.target.value)}
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label>Status *</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              required
+            >
+              <option value={STATUS.ACTIVE}>Active</option>
+              <option value={STATUS.IN_PROGRESS}>In Progress</option>
+              <option value={STATUS.COMPLETED}>Completed</option>
+              <option value={STATUS.ON_HOLD}>On Hold</option>
+              <option value={STATUS.CANCELLED}>Cancelled</option>
+            </select>
           </div>
 
           <div className="form-group">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { skapi } from '../skapi.js'
 import { ACTIVITY_LABELS } from './ActivityForm'
+import { STATUS, STATUS_LABELS, STATUS_COLORS } from '../constants/status.js'
 import './ActivityList.css'
 
 function ActivityList({ refreshTrigger }) {
@@ -89,6 +90,40 @@ function ActivityList({ refreshTrigger }) {
     return `${h}h ${m}m`
   }
 
+  const updateStatus = async (recordId, currentData, newStatus) => {
+    try {
+      // Preserve all existing data and update status
+      const updatedData = {
+        ...currentData,
+        status: newStatus
+      }
+      
+      const config = {
+        record_id: recordId,
+        table: { name: 'activities', access_group: 'private' }
+      }
+
+      await skapi.postRecord(updatedData, config)
+      
+      // Update local state immediately for better UX
+      setActivities(activities.map(activity => {
+        if (activity.record_id === recordId) {
+          return {
+            ...activity,
+            data: {
+              ...activity.data,
+              status: newStatus
+            }
+          }
+        }
+        return activity
+      }))
+    } catch (err) {
+      setError(err.message || 'Failed to update status')
+      setTimeout(() => setError(''), 3000)
+    }
+  }
+
   const deleteActivity = async (recordId) => {
     if (!window.confirm('Are you sure you want to delete this activity?')) {
       return
@@ -140,8 +175,18 @@ function ActivityList({ refreshTrigger }) {
           <div className="activities-grid">
             {activities.map((activity) => {
               const data = activity.data || {}
+              const currentStatus = data.status || STATUS.ACTIVE
+              const statusColor = STATUS_COLORS[currentStatus] || STATUS_COLORS[STATUS.ACTIVE]
+              
               return (
-                <div key={activity.record_id} className="activity-card">
+                <div 
+                  key={activity.record_id} 
+                  className="activity-card"
+                  style={{
+                    borderLeft: `4px solid ${statusColor.border}`,
+                    backgroundColor: statusColor.bg
+                  }}
+                >
                   <div className="activity-header">
                     <span className="activity-type">
                       {ACTIVITY_LABELS[data.activityType] || data.activityType}
@@ -153,6 +198,26 @@ function ActivityList({ refreshTrigger }) {
                     >
                       ×
                     </button>
+                  </div>
+                  
+                  <div className="activity-status-section">
+                    <label className="status-label">Status:</label>
+                    <select
+                      className="status-select"
+                      value={currentStatus}
+                      onChange={(e) => updateStatus(activity.record_id, data, e.target.value)}
+                      style={{
+                        backgroundColor: statusColor.bg,
+                        borderColor: statusColor.border,
+                        color: statusColor.text
+                      }}
+                    >
+                      {Object.values(STATUS).map(status => (
+                        <option key={status} value={status}>
+                          {STATUS_LABELS[status]}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   <div className="activity-date">

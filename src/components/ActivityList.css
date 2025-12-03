@@ -59,6 +59,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
+  border-left: 4px solid transparent;
 }
 
 .activity-card:hover {
@@ -98,6 +99,40 @@
 
 .delete-btn:hover {
   background: #fcc;
+}
+
+.activity-status-section {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.status-select {
+  padding: 6px 12px;
+  border: 2px solid;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.status-select:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.status-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
 }
 
 .activity-date {
